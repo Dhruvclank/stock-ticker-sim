@@ -36,10 +36,12 @@ public final class SwingUI {
             JButton sell = new JButton("SELL");
             JLabel status = new JLabel("Ready");
 
-            buy.addActionListener(e -> enqueue(orderQ, Order.Side.BUY, (String) symbolBox.getSelectedItem(),
-                                               (Integer) qty.getValue(), status));
-            sell.addActionListener(e -> enqueue(orderQ, Order.Side.SELL, (String) symbolBox.getSelectedItem(),
-                                                (Integer) qty.getValue(), status));
+            buy.addActionListener(e -> enqueue(orderQ, portfolio, Order.Side.BUY, (String) symbolBox.getSelectedItem(), ((Integer) qty.getValue()).intValue(),
+            status));
+
+            sell.addActionListener(e -> enqueue(orderQ, portfolio, Order.Side.SELL, (String) symbolBox.getSelectedItem(), ((Integer) qty.getValue()).intValue(),
+            status));
+
             controls.add(new JLabel("Symbol:")); controls.add(symbolBox);
             controls.add(new JLabel("Qty:")); controls.add(qty);
             controls.add(buy); controls.add(sell);
@@ -68,6 +70,18 @@ public final class SwingUI {
                         model.setValueAt(String.format("%.2f", avg), i, 5);
                         model.setValueAt(String.format("%.2f", upl), i, 6);
                     }
+
+                    String selected = (String) symbolBox.getSelectedItem();
+                    Portfolio.Position pSel = portfolio.pos(selected);
+                    int have = (pSel == null ? 0 : pSel.qty);
+
+                    // Disable SELL if no position
+                    sell.setEnabled(have > 0);
+
+                    // Clamp the qty spinner so SELL can't exceed your position
+                    if (have > 0 && ((Integer) qty.getValue()) > have) {
+                        qty.setValue(have);
+                    }
                 }
                 f.setTitle(String.format("Stock Ticker Simulator — Unrealized P/L: %.2f", totalUPL));
             }).start();
@@ -77,7 +91,14 @@ public final class SwingUI {
         });
     }
 
-    private static void enqueue(BlockingQueue<Order> q, Order.Side side, String sym, int qty, JLabel status) {
+        private static void enqueue(BlockingQueue<Order> q, Portfolio portfolio, Order.Side side, String sym, int qty, JLabel status) {
+        // reject SELL when no position (no shorting)
+        if (side == Order.Side.SELL) {
+        Portfolio.Position p = portfolio.pos(sym);
+        int have = (p == null ? 0 : p.qty);
+        if (have <= 0) { status.setText("Reject: no position"); return; }
+        if (qty > have) { status.setText("Reject: qty exceeds position (" + have + ")"); return; }
+    }
         try {
             q.put(new Order(side, sym, qty));
             status.setText(String.format("Queued %s %s x%d", side, sym, qty));
@@ -86,4 +107,5 @@ public final class SwingUI {
             status.setText("Interrupted");
         }
     }
+
 }
