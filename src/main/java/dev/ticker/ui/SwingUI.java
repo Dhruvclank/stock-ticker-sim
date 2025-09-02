@@ -25,6 +25,15 @@ public final class SwingUI {
             };
             JTable table = new JTable(model);
             table.setRowHeight(22);
+
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            table.getColumnModel().getColumn(0).setPreferredWidth(70);
+            for (int c = 1; c < table.getColumnCount(); c++) {
+                table.getColumnModel().getColumn(c).setPreferredWidth(100);
+            }
+            table.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
+            table.getTableHeader().setFont(new Font(Font.SANS_SERIF, Font.BOLD, 12));
+
             for (String s : symbols) model.addRow(new Object[]{s, "-", "-", "-", 0, "0.00", "0.00"});
             f.add(new JScrollPane(table), BorderLayout.CENTER);
 
