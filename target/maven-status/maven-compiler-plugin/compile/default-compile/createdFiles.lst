@@ -1,11 +1,13 @@
-dev\ticker\engine\Tick.class
 dev\ticker\engine\TickerView.class
+dev\ticker\engine\CommandLoop.class
+dev\ticker\engine\MarketFeed.class
+dev\ticker\ui\SwingUI.class
+dev\ticker\engine\Ticker.class
+dev\ticker\ui\SwingUI$1.class
+dev\ticker\engine\Tick.class
 dev\ticker\engine\Order.class
 dev\ticker\engine\Portfolio.class
-dev\ticker\engine\CommandLoop.class
 dev\ticker\Main.class
 dev\ticker\engine\Portfolio$Position.class
-dev\ticker\engine\MarketFeed.class
 dev\ticker\engine\OrderBook.class
-dev\ticker\engine\Ticker.class
 dev\ticker\engine\Order$Side.class

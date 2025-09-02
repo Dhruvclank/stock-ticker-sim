@@ -27,16 +27,15 @@ public class Portfolio {
             int newQty = p.qty + q;
             p.avg = newQty == 0 ? 0 : (p.avg * p.qty + notional) / newQty;
             p.qty = newQty;
-        } else { // SELL
-            int sell = Math.min(q, p.qty);
-            double notional = fillPx * sell;
+        } else { // SELL (strict: reject oversize, no shorting)
+            if (p.qty <= 0 || q > p.qty) return; // nothing to sell or oversize - ignore
+            double notional = fillPx * q;
             cash += notional;
-            realizedPnL += (fillPx - p.avg) * sell;
-            p.qty -= sell;
+            realizedPnL += (fillPx - p.avg) * q;
+            p.qty -= q;
             if (p.qty == 0) p.avg = 0;
         }
     }
-
     public synchronized double cash() { return cash; }
     public synchronized double realizedPnL() { return realizedPnL; }
     public synchronized Position pos(String sym) { return positions.get(sym); }
